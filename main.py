@@ -22,6 +22,8 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
+def get_field(fieldname):
+    return request.form.get(fieldname)
 
 @login_manager.user_loader
 def loader_user(user_id):
@@ -31,8 +33,8 @@ def loader_user(user_id):
 @app.route('/register', methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        user = Users(username=request.form.get("username"),
-                     password=request.form.get("password"))
+        user = Users(username=get_field("username"),
+                     password=get_field("password"))
         db.session.add(user)
         db.session.commit()
         return redirect(url_for("login"))
@@ -43,8 +45,8 @@ def register():
 def login():
     if request.method == "POST":
         user = Users.query.filter_by(
-            username=request.form.get("username")).first()
-        if user.password == request.form.get("password"):
+            username=get_field("username")).first()
+        if user.password == get_field("password"):
             login_user(user)
             return redirect(url_for("home"))
     return render_template("login.html")
